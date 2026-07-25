@@ -3,7 +3,7 @@ WORKDIR /src
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build -- --base-href=/steganography/
+RUN npm run build -- --base-href=/apps/steganography/
 
 FROM nginx:alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
