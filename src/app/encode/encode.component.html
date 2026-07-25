@@ -1,0 +1,147 @@
+<div class="grid">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>1. Cover image</mat-card-title>
+      <mat-card-subtitle>PNG, JPEG, BMP or WebP &mdash; output is always PNG</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <app-image-drop
+        label="Drop the image that will carry your data"
+        [filename]="carrierName()"
+        (fileSelected)="onCarrier($event)"
+      />
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>2. Hidden data</mat-card-title>
+      <mat-card-subtitle>A message or any file</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content class="stack">
+      <mat-button-toggle-group
+        [value]="mode()"
+        (change)="onModeChange($event.value)"
+        aria-label="Data type"
+      >
+        <mat-button-toggle value="text">
+          <mat-icon>notes</mat-icon>
+          Text
+        </mat-button-toggle>
+        <mat-button-toggle value="file">
+          <mat-icon>attach_file</mat-icon>
+          File
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+
+      @if (mode() === 'text') {
+        <mat-form-field appearance="outline">
+          <mat-label>Message</mat-label>
+          <textarea
+            matInput
+            rows="6"
+            [value]="text()"
+            (input)="onTextChange($any($event.target).value)"
+          ></textarea>
+        </mat-form-field>
+      } @else {
+        <div class="file-pick">
+          <input #payloadInput type="file" (change)="onPayloadFile($event)" hidden />
+          <button mat-stroked-button type="button" (click)="payloadInput.click()">
+            <mat-icon>upload_file</mat-icon>
+            Choose file
+          </button>
+          <span class="chosen">{{ payloadName() || 'No file chosen' }}</span>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>3. Bit depth</mat-card-title>
+      <mat-card-subtitle>More bits per channel means more room, more visible noise</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content class="stack">
+      <mat-button-toggle-group
+        [value]="depth()"
+        (change)="onDepthChange($event.value)"
+        aria-label="Bit depth"
+      >
+        @for (option of depths; track option) {
+          <mat-button-toggle [value]="option">{{ option }}-bit</mat-button-toggle>
+        }
+      </mat-button-toggle-group>
+
+      @if (carrierName()) {
+        <div class="capacity">
+          <div class="capacity-row">
+            <span>{{ format(payloadSize) }} of {{ format(capacityBytes) }} used</span>
+            <span>{{ usedPercent | number: '1.0-1' }}%</span>
+          </div>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="usedPercent"
+            [color]="overCapacity ? 'warn' : 'primary'"
+          />
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<div class="actions">
+  <button mat-flat-button [disabled]="!canEncode" (click)="run()">
+    <mat-icon>lock</mat-icon>
+    Encode
+  </button>
+</div>
+
+@if (busy) {
+  <div class="working">
+    <div class="working-row">
+      <span>{{ phaseLabel }}</span>
+      @if (phase() === 'hiding') {
+        <span>{{ progress() | number: '1.0-0' }}%</span>
+      }
+    </div>
+    @if (phase() === 'hiding') {
+      <mat-progress-bar mode="determinate" [value]="progress()" />
+    } @else {
+      <mat-progress-bar mode="indeterminate" />
+    }
+  </div>
+}
+
+@if (overCapacity) {
+  <p class="error">
+    That data is too large for this image at {{ depth() }}-bit depth. Pick a bigger image, a
+    higher bit depth, or less data.
+  </p>
+}
+
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+@if (resultUrl()) {
+  <mat-card class="result">
+    <mat-card-header>
+      <mat-card-title>Encoded image</mat-card-title>
+      <mat-card-subtitle>{{ format(resultSize()) }} PNG</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <img [src]="resultUrl()" alt="Encoded result" />
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-flat-button (click)="copy()">
+        <mat-icon>{{ copied() ? 'check' : 'content_copy' }}</mat-icon>
+        {{ copied() ? 'Copied' : 'Copy image' }}
+      </button>
+      <button mat-stroked-button (click)="download()">
+        <mat-icon>download</mat-icon>
+        Download
+      </button>
+    </mat-card-actions>
+  </mat-card>
+}

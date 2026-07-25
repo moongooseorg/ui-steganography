@@ -1,0 +1,8 @@
+services:
+  app:
+    container_name: ${APP_NAME:?APP_NAME must be set}
+    image: ${IMAGE:?IMAGE must be set}
+    restart: unless-stopped
+    pull_policy: missing
+    ports:
+      - "${HOST_PORT:?HOST_PORT must be set}:8080"

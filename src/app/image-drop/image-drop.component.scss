@@ -1,0 +1,38 @@
+.drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  border: 2px dashed var(--mat-sys-outline);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 150ms, background 150ms;
+}
+
+.drop:hover,
+.drop.dragging {
+  border-color: var(--mat-sys-primary);
+  background: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
+}
+
+.drop.filled {
+  border-style: solid;
+  border-color: var(--mat-sys-primary);
+}
+
+mat-icon {
+  color: var(--mat-sys-primary);
+}
+
+.primary {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant);
+}

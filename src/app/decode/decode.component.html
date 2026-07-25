@@ -1,0 +1,80 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Encoded image</mat-card-title>
+    <mat-card-subtitle>The bit depth is detected automatically</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <app-image-drop
+      label="Drop an image to check for hidden data"
+      [filename]="carrierName()"
+      (fileSelected)="onCarrier($event)"
+    />
+  </mat-card-content>
+</mat-card>
+
+<div class="actions">
+  <button mat-flat-button [disabled]="!hasImage || busy" (click)="run()">
+    <mat-icon>lock_open</mat-icon>
+    Decode
+  </button>
+</div>
+
+@if (busy) {
+  <div class="working">
+    <div class="working-row">
+      <span>{{ phase() === 'reading' ? 'Reading image…' : 'Reading hidden data…' }}</span>
+      @if (phase() === 'searching' && progress() > 0) {
+        <span>{{ progress() | number: '1.0-0' }}%</span>
+      }
+    </div>
+    @if (phase() === 'searching' && progress() > 0) {
+      <mat-progress-bar mode="determinate" [value]="progress()" />
+    } @else {
+      <mat-progress-bar mode="indeterminate" />
+    }
+  </div>
+}
+
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+@if (notFound()) {
+  <p class="empty">No hidden data found in this image.</p>
+}
+
+@if (hasResult) {
+  <mat-card class="result">
+    @if (isFile) {
+      <mat-card-header>
+        <mat-card-title>Hidden file</mat-card-title>
+        <mat-card-subtitle>{{ format(fileSize()) }} of binary data</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="note">
+          The original filename is not stored, so this downloads as
+          <code>hidden.bin</code>. Rename it to the extension you expect.
+        </p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-flat-button (click)="download()">
+          <mat-icon>download</mat-icon>
+          Download
+        </button>
+      </mat-card-actions>
+    } @else {
+      <mat-card-header>
+        <mat-card-title>Hidden message</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <pre class="text">{{ text() }}</pre>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-flat-button (click)="copy()">
+          <mat-icon>{{ copied() ? 'check' : 'content_copy' }}</mat-icon>
+          {{ copied() ? 'Copied' : 'Copy text' }}
+        </button>
+      </mat-card-actions>
+    }
+  </mat-card>
+}

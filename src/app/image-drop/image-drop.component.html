@@ -1,0 +1,13 @@
+<label
+  class="drop"
+  [class.dragging]="dragging"
+  [class.filled]="filename"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave()"
+  (drop)="onDrop($event)"
+>
+  <input type="file" [accept]="accept" (change)="onBrowse($event)" hidden />
+  <mat-icon>{{ filename ? 'check_circle' : 'add_photo_alternate' }}</mat-icon>
+  <span class="primary">{{ filename || label }}</span>
+  <span class="hint">{{ filename ? 'Click or drop to replace' : 'Click to browse, or drop a file' }}</span>
+</label>
