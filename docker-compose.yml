@@ -4,5 +4,11 @@ services:
     image: ${IMAGE:?IMAGE must be set}
     restart: unless-stopped
     pull_policy: missing
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+        compress: "true"
     ports:
       - "${HOST_PORT:?HOST_PORT must be set}:8080"
